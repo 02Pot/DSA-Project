@@ -98,15 +98,13 @@ public class Login {
 						}
 						if (loginSuccess) {
 					        JOptionPane.showMessageDialog(null, "Login Success");
-					        User user = new User(enteredUsername,enteredPassword);
-					        user.saveUserToDatabase();				        
-					        Homepage home = new Homepage(user);
+							User loggedInUser = new User(enteredUsername, enteredPassword);
+					        Homepage home = new Homepage(loggedInUser);
 					        home.frame.setVisible(true);
 					        frame.dispose();
 					        
 					    	} else {
 					        JOptionPane.showMessageDialog(null, "Wrong Username or Password");
-							System.out.println(enteredUsername + " " + enteredPassword);
 					    	}
 						}else {
 							JOptionPane.showMessageDialog(null, "Please enter Username and Password");

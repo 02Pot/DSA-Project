@@ -97,7 +97,7 @@ public class Signup extends JFrame{
 	                        if (!doUsernameExists(enteredUsername)) {
 	                            // If not, create a new user
 	                            UserDataManager userManager = UserDataManager.getInstance();
-	                            User user = new User(enteredPassword, enteredUsername);
+	                            User user = new User(enteredUsername, enteredPassword);
 	                            JOptionPane.showMessageDialog(null, "Account Created!");
 	                            user.saveUserToDatabase();
 	                            userManager.addUser(user);

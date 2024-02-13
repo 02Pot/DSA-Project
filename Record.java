@@ -44,20 +44,17 @@ public class Record {
     try (Connection connection = DBConnection.getConnection()) {
         connection.setAutoCommit(false);
         
-        // Check if the username already exists in the record table
         String checkQuery = "SELECT * FROM record WHERE UserName = ?";
         try (PreparedStatement checkStatement = connection.prepareStatement(checkQuery)) {
             checkStatement.setString(1, username);
             try (ResultSet resultSet = checkStatement.executeQuery()) {
-                // If the username already exists, do not insert a new record
                 if (resultSet.next()) {
                     System.out.println("Username already exists in the record table.");
-                    return; // Exit the method without inserting a new record
+                    return; 
                 }
             }
         }
 
-        // Insert a new record if the username does not exist
         String insertQuery = "INSERT INTO record (UserName, BookIssued, ReturnDate) VALUES (?, ?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
             preparedStatement.setString(1, username);
