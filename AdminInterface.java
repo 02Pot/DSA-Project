@@ -1,7 +1,6 @@
 package LibrarySystemVSCODE;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
 
 import javax.swing.JButton;
@@ -22,18 +21,7 @@ public class AdminInterface {
     private JFrame frame;
     private JTabbedPane tabbedPane;
 
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    AdminInterface window = new AdminInterface();
-                    window.frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+   
 
     public AdminInterface() {
         initialize();

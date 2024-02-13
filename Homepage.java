@@ -64,8 +64,6 @@ public class Homepage{
 		this.currentUser = currentUser;
 		initialize();
 	}
-	
-	
 
 	private void initialize() {
 		frame = new JFrame();
@@ -120,6 +118,8 @@ public class Homepage{
 		borrowbutton = new JToggleButton("ISSUE");
 		borrowbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				borrowbutton.setEnabled(false);
+
 				String searchBookTitle = searchbook.getText().trim();
 		        String username = currentUser.getUID();
 
@@ -140,11 +140,8 @@ public class Homepage{
 		                    returnDateCalendar.add(Calendar.DAY_OF_MONTH, 14);
 		                    java.sql.Date returnDate = new java.sql.Date(returnDateCalendar.getTimeInMillis());
 							
-							
-							int newUserID = Record.generateNewID() + 1;
-
-							Book.borrowBook(searchBookTitle,username);
-		                    Record recordTrans = new Record(searchBookTitle,username,returnDate,newUserID);
+		
+		                    Record recordTrans = new Record(searchBookTitle,username,returnDate);
 		                    recordTrans.setBookIssued(searchBookTitle);
 		                    recordTrans.setUsername(username);
 		                    recordTrans.setReturnDate(returnDate);
@@ -162,6 +159,7 @@ public class Homepage{
 		        } else {
 		            JOptionPane.showMessageDialog(null, "Username cannot be empty.");
 		        }
+				borrowbutton.setEnabled(true);
 		    }
 		});
 		

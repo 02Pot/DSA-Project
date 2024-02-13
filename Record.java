@@ -3,20 +3,18 @@ package LibrarySystemVSCODE;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Record {
 	private String bookIssued;
 	private Date ReturnDate;
-	private String Username;
-	private int UserID;
-	
+	private String Username;	
 
-	public Record(String bookIssued,String Username,Date ReturnDate,int UserID) {
+	public Record(String bookIssued,String Username,Date ReturnDate) {
 		this.bookIssued = bookIssued;
 		this.Username = Username;
 		this.ReturnDate = ReturnDate;
-		this.UserID = UserID;
 	}
 	
 	public void setBookIssued(String bt) {
@@ -30,9 +28,7 @@ public class Record {
 	public void setUsername(String username) {
 		this.Username = username;
 	}
-	public void setUserID(int UserID) {
-		this.UserID = UserID;
-	}
+	
 	
 	public String getBookIssued() {
 		return bookIssued;
@@ -43,41 +39,37 @@ public class Record {
 	public String getUsername() {
 		return Username;
 	}
-	public int getUserID(){
-		return UserID;
-	}
-
-	public static int generateNewID(){
-		int maxUserID = getMaxUIDfromdatabase();
-		int newUserID = maxUserID + 1;
-
-		return newUserID;
-	}
-
-	private static int getMaxUIDfromdatabase(){
-		int maxUserID = 1;
-		return maxUserID;
-	}
 
 	public void saveToRecord(String username) {
+    try (Connection connection = DBConnection.getConnection()) {
+        connection.setAutoCommit(false);
+        
+        // Check if the username already exists in the record table
+        String checkQuery = "SELECT * FROM record WHERE UserName = ?";
+        try (PreparedStatement checkStatement = connection.prepareStatement(checkQuery)) {
+            checkStatement.setString(1, username);
+            try (ResultSet resultSet = checkStatement.executeQuery()) {
+                // If the username already exists, do not insert a new record
+                if (resultSet.next()) {
+                    System.out.println("Username already exists in the record table.");
+                    return; // Exit the method without inserting a new record
+                }
+            }
+        }
 
+        // Insert a new record if the username does not exist
+        String insertQuery = "INSERT INTO record (UserName, BookIssued, ReturnDate) VALUES (?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, this.bookIssued);
+            preparedStatement.setDate(3, this.ReturnDate);
+            preparedStatement.executeUpdate();
+        }
 
-		try (Connection connection = DBConnection.getConnection()) {
-			connection.setAutoCommit(false);
+        connection.commit();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 
-			String query = "INSERT INTO record (UserID, UserName, BookIssued, ReturnDate) VALUES (?, ?, ?, ?)";
-			try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-				preparedStatement.setInt(1, this.UserID);
-				preparedStatement.setString(2, username);
-				preparedStatement.setString(3, this.bookIssued);
-				preparedStatement.setDate(4, this.ReturnDate);
-				preparedStatement.executeUpdate();
-				
-			}
-
-			connection.commit();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
 }
