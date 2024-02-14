@@ -6,15 +6,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.JOptionPane;
+
 public class Record {
 	private String bookIssued;
-	private Date ReturnDate;
-	private String Username;	
+	private Date returnDate;
+	private String username;	
 
-	public Record(String bookIssued,String Username,Date ReturnDate) {
+	public Record(String bookIssued,String username,Date returnDate) {
 		this.bookIssued = bookIssued;
-		this.Username = Username;
-		this.ReturnDate = ReturnDate;
+		this.username = username;
+		this.returnDate = returnDate;
 	}
 	
 	public void setBookIssued(String bt) {
@@ -22,11 +24,11 @@ public class Record {
 	}
 	
 	public void setReturnDate(Date date) {
-		this.ReturnDate = date;
+		this.returnDate = date;
 	}
 	
 	public void setUsername(String username) {
-		this.Username = username;
+		this.username = username;
 	}
 	
 	
@@ -34,23 +36,25 @@ public class Record {
 		return bookIssued;
 	}
 	public Date getReturnDate() {
-		return ReturnDate;
+		return returnDate;
 	}
 	public String getUsername() {
-		return Username;
+		return username;
 	}
 
 	public void saveToRecord(String username) {
     try (Connection connection = DBConnection.getConnection()) {
         connection.setAutoCommit(false);
         
-        String checkQuery = "SELECT * FROM record WHERE UserName = ?";
+
+        String checkQuery = "SELECT * FROM record WHERE UserName = ? AND BookIssued = ?";
         try (PreparedStatement checkStatement = connection.prepareStatement(checkQuery)) {
             checkStatement.setString(1, username);
-            try (ResultSet resultSet = checkStatement.executeQuery()) {
+			checkStatement.setString(2, this.bookIssued);
+			try (ResultSet resultSet = checkStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    System.out.println("Username already exists in the record table.");
-                    return; 
+					JOptionPane.showMessageDialog(null, "Already borrowed");
+                    return;
                 }
             }
         }
@@ -59,7 +63,8 @@ public class Record {
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, this.bookIssued);
-            preparedStatement.setDate(3, this.ReturnDate);
+            preparedStatement.setDate(3, this.returnDate);
+			JOptionPane.showMessageDialog(null, "Book Issued");
             preparedStatement.executeUpdate();
         }
 

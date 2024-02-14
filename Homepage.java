@@ -6,6 +6,10 @@ import javax.swing.JScrollPane;
 import java.awt.SystemColor;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -119,7 +123,7 @@ public class Homepage{
 		borrowbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				borrowbutton.setEnabled(false);
-
+				boolean alreadyBorrowed;
 				String searchBookTitle = searchbook.getText().trim();
 		        String username = currentUser.getUID();
 
@@ -127,7 +131,7 @@ public class Homepage{
 		            boolean bookFound = Book.isBookAvailable(searchBookTitle);
 
 		            if (bookFound) {
-		                boolean alreadyBorrowed = Book.isBookBorrowed(searchBookTitle);
+		                alreadyBorrowed = Book.isBookBorrowed(searchBookTitle);
 
 		                if (alreadyBorrowed) {
 		                    JOptionPane.showMessageDialog(null, "You have already borrowed this book.");
@@ -147,10 +151,10 @@ public class Homepage{
 		                    recordTrans.setReturnDate(returnDate);
 							
 							recordTrans.saveToRecord(username);
-		                    Book.addRecord(recordTrans);
-
-		                    JOptionPane.showMessageDialog(null, "Book Issued");
-		                    updateRecord();
+							
+							
+							updateRecord();
+							
 		                }
 		            } else {
 		                JOptionPane.showMessageDialog(null, "Cannot Find Book");
@@ -193,42 +197,37 @@ public class Homepage{
 		returnbutton = new JButton("Return");
 		returnbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(transactionlist.isEmpty()) {
+				if (transactionlist.isEmpty()) {
 					JOptionPane.showMessageDialog(null, "No records found");
-				}else {
-		            List<String> bookTitles = new ArrayList<>();
-		            for (Record transaction : transactionlist) {
-		                bookTitles.add(transaction.getBookIssued());
-		            }
-
-		            String selectedBook = (String) JOptionPane.showInputDialog(
-		                    null,
-		                    "Select a book to return:",
-		                    "Return Book",
-		                    JOptionPane.PLAIN_MESSAGE,
-		                    null,
-		                    bookTitles.toArray(),
-		                    null
-		            );
-
-		            if (selectedBook != null) {
-		            	List<Record> recordsToRemove = new ArrayList<>();
-		                for (Record transaction : transactionlist) {
-		                    if (transaction.getBookIssued().equals(selectedBook)) {
-		                        recordsToRemove.add(transaction);
-		                    }
-		                }
-		                transactionlist.removeAll(recordsToRemove);
-
-		                JOptionPane.showMessageDialog(null, "Book '" + selectedBook + "' returned successfully.");
-		                updateRecord();
-		            } else {
-		                JOptionPane.showMessageDialog(null, "Return canceled.");
-		            }
+				} else {
+					String selectedBook = (String) JOptionPane.showInputDialog(
+						null,
+						"Select a book to return:",
+						"Return Book",
+						JOptionPane.PLAIN_MESSAGE,
+						null,
+						transactionlist.stream().map(Record::getBookIssued).toArray(String[]::new),
+						null
+					);
+		
+					if (selectedBook != null) {
+						List<Record> recordsToRemove = new ArrayList<>();
+						for (Record transaction : transactionlist) {
+							if (transaction.getBookIssued().equals(selectedBook)) {
+								recordsToRemove.add(transaction);
+							}
+						}
+						transactionlist.removeAll(recordsToRemove);
+		
+						JOptionPane.showMessageDialog(null, "Book '" + selectedBook + "' returned successfully.");
+						updateRecord();
+					} else {
+						JOptionPane.showMessageDialog(null, "Return canceled.");
+					}
 				}
 			}
 		});
-		
+
 		returnbutton.setFont(new Font("Tahoma", Font.BOLD, 27));
 		returnbutton.setBounds(124, 375, 205, 86);
 		returnbook.add(returnbutton);
@@ -237,19 +236,20 @@ public class Homepage{
 		returnallbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (transactionlist.isEmpty()) {
-		            JOptionPane.showMessageDialog(null, "No records found. Cannot return any books.");
-		        } else {
-		            int dialogResult = JOptionPane.showConfirmDialog(null, "Are you sure you want to return all books?", "Confirmation", JOptionPane.YES_NO_OPTION);
-		            
-		            if (dialogResult == JOptionPane.YES_OPTION) {
-		                transactionlist.clear();
-
-		                JOptionPane.showMessageDialog(null, "All books returned successfully.");
-		                updateRecord();
-		            }
-		        }
+					JOptionPane.showMessageDialog(null, "No records found. Cannot return any books.");
+				} else {
+					int dialogResult = JOptionPane.showConfirmDialog(null, "Are you sure you want to return all books?", "Confirmation", JOptionPane.YES_NO_OPTION);
+					
+					if (dialogResult == JOptionPane.YES_OPTION) {
+						transactionlist.clear();
+		
+						JOptionPane.showMessageDialog(null, "All books returned successfully.");
+						updateRecord();
+					}
+				}
 			}
 		});
+
 		returnallbutton.setFont(new Font("Tahoma", Font.BOLD, 27));
 		returnallbutton.setBounds(408, 375, 208, 86);
 		returnbook.add(returnallbutton);
@@ -269,7 +269,15 @@ public class Homepage{
 		recordbutton = new JButton("Record");
 		recordbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				List<Record> userRecords = getUserRecords(currentUser.getUID());
+
+				transactionlist.clear();
+				transactionlist.addAll(userRecords);
+
+				updateRecord();
+
 				tabbedPane.setSelectedIndex(1);
+
 			}
 		});
 		
@@ -323,4 +331,26 @@ public class Homepage{
 	    
 	    transactiontable.setModel(model);
 	}
+
+	private List<Record> getUserRecords(String username) {
+        List<Record> userRecords = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection()) {
+            String query = "SELECT * FROM record WHERE UserName = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setString(1, username);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        String bookIssued = resultSet.getString("BookIssued");
+                        Date returnDate = resultSet.getDate("ReturnDate");
+						Record record = new Record(bookIssued, username, new java.sql.Date(returnDate.getTime()));
+                        userRecords.add(record);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userRecords;
+	}
+    
 }

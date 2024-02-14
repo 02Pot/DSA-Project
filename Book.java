@@ -79,18 +79,6 @@ public class Book {
 			
 			
 		}
-		public static void addRecord(Record record) {
-	        try (Connection connection = DBConnection.getConnection()) {
-	            String query = "INSERT INTO record (Username,BookIssued, ReturnDate) VALUES (?, ?, ?)";
-	            PreparedStatement preparedStatement = connection.prepareStatement(query);
-	            preparedStatement.setString(1, record.getUsername());
-	            preparedStatement.setString(2, record.getBookIssued());
-				preparedStatement.setDate(3, record.getReturnDate());
-	            preparedStatement.executeUpdate();
-			
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
-	    }
+	
 
 }
