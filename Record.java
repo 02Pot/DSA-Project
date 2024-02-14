@@ -68,10 +68,23 @@ public class Record {
             preparedStatement.executeUpdate();
         }
 
-        connection.commit();
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
+        	connection.commit();
+    	} catch (SQLException e) {
+        	e.printStackTrace();
+    	}
+	}
+	public void deleteRecord(String username, String bookTitle) {
+    	try (Connection connection = DBConnection.getConnection()) {
+        	String query = "DELETE FROM record WHERE UserName = ? AND BookIssued = ?";
+        	try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            	preparedStatement.setString(1, username);
+            	preparedStatement.setString(2, bookTitle);
+            	preparedStatement.executeUpdate();
+        	}
+    	} catch (SQLException e) {
+        	e.printStackTrace();
+    	}
 }
+
 
 }

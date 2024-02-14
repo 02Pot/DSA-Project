@@ -152,7 +152,6 @@ public class Homepage{
 							
 							recordTrans.saveToRecord(username);
 							
-							
 							updateRecord();
 							
 		                }
@@ -200,27 +199,38 @@ public class Homepage{
 				if (transactionlist.isEmpty()) {
 					JOptionPane.showMessageDialog(null, "No records found");
 				} else {
+					List<String> bookTitles = new ArrayList<>();
+					for(Record transaction : transactionlist){
+						bookTitles.add(transaction.getBookIssued());
+						
+					}
+					
 					String selectedBook = (String) JOptionPane.showInputDialog(
 						null,
 						"Select a book to return:",
 						"Return Book",
 						JOptionPane.PLAIN_MESSAGE,
 						null,
-						transactionlist.stream().map(Record::getBookIssued).toArray(String[]::new),
+						bookTitles.toArray(new String[0]),
 						null
 					);
-		
 					if (selectedBook != null) {
-						List<Record> recordsToRemove = new ArrayList<>();
+						Record selectedRecord = null;
 						for (Record transaction : transactionlist) {
 							if (transaction.getBookIssued().equals(selectedBook)) {
-								recordsToRemove.add(transaction);
+								selectedRecord = transaction;
+								break;
 							}
 						}
-						transactionlist.removeAll(recordsToRemove);
-		
-						JOptionPane.showMessageDialog(null, "Book '" + selectedBook + "' returned successfully.");
-						updateRecord();
+						if(selectedRecord != null){
+							transactionlist.remove(selectedRecord);
+							selectedRecord.deleteRecord(currentUser.getUID(), selectedBook);
+							updateRecord();
+							JOptionPane.showMessageDialog(null, "Book " + selectedBook + " returned successfully");
+						}else{
+							JOptionPane.showMessageDialog(null, "Book record not found");
+						}
+						
 					} else {
 						JOptionPane.showMessageDialog(null, "Return canceled.");
 					}
@@ -239,7 +249,9 @@ public class Homepage{
 					JOptionPane.showMessageDialog(null, "No records found. Cannot return any books.");
 				} else {
 					int dialogResult = JOptionPane.showConfirmDialog(null, "Are you sure you want to return all books?", "Confirmation", JOptionPane.YES_NO_OPTION);
-					
+					for (Record transaction : transactionlist) {
+						transaction.deleteRecord(currentUser.getUID(), transaction.getBookIssued());
+					}
 					if (dialogResult == JOptionPane.YES_OPTION) {
 						transactionlist.clear();
 		
