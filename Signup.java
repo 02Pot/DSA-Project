@@ -16,7 +16,7 @@ import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.SystemColor;
 
-public class Signup extends JFrame{
+public class SignUp extends JFrame{
 
 	final UserDataManager UserDataManagement = null;
 	private JPanel contentPane;
@@ -31,7 +31,7 @@ public class Signup extends JFrame{
 	JButton loginb;
 	JButton signb;
 	
-	public Signup() {
+	public SignUp() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 459, 442);
 		contentPane = new JPanel();

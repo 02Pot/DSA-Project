@@ -82,7 +82,7 @@ public class Login {
 				@SuppressWarnings("deprecation")
 				String enteredPassword = pass.getText().trim();
 				
-				if(enteredUsername.equals("admin")&&enteredPassword.equals("admin")) {
+				if(enteredUsername.equalsIgnoreCase("admin")&&enteredPassword.equalsIgnoreCase("admin")) {
 					AdminInterface Administrator = new AdminInterface();
 					Administrator.setVisible(true);
 					frame.setVisible(false);
@@ -119,7 +119,7 @@ public class Login {
 		signup = new JButton("Sign Up");
 		signup.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Signup sign = new Signup();
+				SignUp sign = new SignUp();
 				sign.setVisible(true);
 				frame.dispose();
 			}

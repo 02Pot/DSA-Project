@@ -18,6 +18,34 @@ public class Book {
 			this.publisher = publisher;
 		}
 	 	
+		public void setBookTitle(String bt) {
+			this.title = bt;
+		}
+		
+		public void setBookAuthor(String author) {
+			this.author = author;
+		}
+		
+		public void setISBN(int ISBN) {
+			this.ISBN = ISBN;
+		}
+		
+		public void setPublisher(String publisher) {
+			this.publisher = publisher;
+		}
+		public String getBookTitle() {
+			return title;
+		}
+		public String getAuthor() {
+			return author;
+		}
+		public int getISBN() {
+			return ISBN;
+		}
+		public String getPublisher() {
+			return publisher;
+		}
+		
 		public static boolean isBookAvailable(String bookTitle) {
 			try (Connection connection = DBConnection.getConnection();
 		             PreparedStatement preparedStatement = connection.prepareStatement(

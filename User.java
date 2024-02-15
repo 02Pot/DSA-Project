@@ -13,13 +13,18 @@ public class User {
 		this.passID = pid;
 	}
 	
+	public void setIUD(String UID) {
+		this.userID = UID;
+	}
+	public void setPID(String PID) {
+		this.passID = PID;
+	}
 	public String getUID() {
 		return userID;
 	}
 	public String getPID() {
 		return passID;
 	}
-	
 	
 	public void saveUserToDatabase() {
 		try (Connection connection = DBConnection.getConnection()) {

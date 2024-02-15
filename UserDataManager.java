@@ -37,6 +37,7 @@ public class UserDataManager {
                         String password = resultSet.getString("UserPass");
                         User user = new User(username, password);
                         userList.add(user);
+                        
                     }
                 }
             }

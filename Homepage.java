@@ -299,6 +299,7 @@ public class Homepage{
 				tabbedPane.setSelectedIndex(0);
 			}
 		});
+		
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
@@ -330,9 +331,7 @@ public class Homepage{
 		panel.setLayout(gl_panel);
 	}
 	
-	
-	
-	private void updateRecord() {
+	public void updateRecord() {
 		DefaultTableModel model = new DefaultTableModel();
 	    model.addColumn("Book Title");
 	    model.addColumn("Due Date");
@@ -364,5 +363,5 @@ public class Homepage{
         }
         return userRecords;
 	}
-    
+	
 }
